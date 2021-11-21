@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_inappwebview/flutter_inappwebview.dart';
 import 'package:flutter_downloader/flutter_downloader.dart';
@@ -15,6 +17,10 @@ class ClanMeetingScreen extends StatefulWidget {
 
 class _ClanMeetingScreenState extends State<ClanMeetingScreen> {
   final GlobalKey _webViewKey = GlobalKey();
+  bool isLoading = true;
+
+  // disable navigation pop while meeting is in progress
+  bool canGoBack = false;
 
   // webview options
   final InAppWebViewGroupOptions options = InAppWebViewGroupOptions(
@@ -33,16 +39,23 @@ class _ClanMeetingScreenState extends State<ClanMeetingScreen> {
         allowsInlineMediaPlayback: true,
       ));
 
-  final double _loading = 0;
-
-  // disable navigation pop while meeting is in progress
-  bool _canGoBack = false;
-
   @override
   void initState() {
     super.initState();
     // The following line will enable the Android and iOS wakelock.
     Wakelock.enable();
+    _initializeFlutterDownloader();
+  }
+
+  _initializeFlutterDownloader() async {
+    if (Platform.isAndroid) {
+      // enable for debugging if needed
+      await AndroidInAppWebViewController.setWebContentsDebuggingEnabled(false);
+    }
+
+    // Initialize Flutter Downloader
+    await FlutterDownloader.initialize(debug: false);
+    FlutterDownloader.registerCallback(Utility.downloadCallback);
   }
 
   @override
@@ -64,12 +77,12 @@ class _ClanMeetingScreenState extends State<ClanMeetingScreen> {
         url: Uri.parse(
             'https://clan-meeting-assets.s3.ap-south-1.amazonaws.com/releases/api/v1.0.0/meeting-flutter.html?$_queryString'));
 
-    return Scaffold(
-      // required so that keyboard does not hide the visible screen
-      resizeToAvoidBottomInset: true,
-      body: WillPopScope(
-        onWillPop: () async => _canGoBack,
-        child: SafeArea(
+    return SafeArea(
+      child: Scaffold(
+        // required so that keyboard does not hide the visible screen
+        resizeToAvoidBottomInset: true,
+        body: WillPopScope(
+          onWillPop: () async => canGoBack,
           child: Column(children: <Widget>[
             Expanded(
               child: Stack(
@@ -78,10 +91,13 @@ class _ClanMeetingScreenState extends State<ClanMeetingScreen> {
                     key: _webViewKey,
                     initialUrlRequest: clanMeetingURL,
                     initialOptions: options,
-                    // onConsoleMessage: (controller, consoleMessage) {
-                    //  debugPrint(consoleMessage.toString());
-                    // },
+                    onConsoleMessage: (controller, consoleMessage) {
+                      debugPrint(consoleMessage.toString());
+                    },
                     onWebViewCreated: (controller) {
+                      setState(() {
+                        isLoading = false;
+                      });
                       // register a JavaScript handler and search for this handler name
                       // in the meeting-flutter.html file to understand how you can call
                       // a flutter handler in response to a JavaScript meeting event.
@@ -91,7 +107,7 @@ class _ClanMeetingScreenState extends State<ClanMeetingScreen> {
                           callback: (data) async {
                             // data has arguments coming from the JavaScript side!
                             setState(() {
-                              _canGoBack = true;
+                              canGoBack = true;
                               Wakelock.disable();
                             });
                             debugPrint(
@@ -111,9 +127,9 @@ class _ClanMeetingScreenState extends State<ClanMeetingScreen> {
                     onCreateWindow: (controller, onCreateWindowRequest) =>
                         _onCreateWindow(onCreateWindowRequest),
                   ),
-                  _loading < 1.0
-                      ? LinearProgressIndicator(value: _loading)
-                      : Container(),
+                  isLoading
+                      ? const Center(child: CircularProgressIndicator())
+                      : Stack(),
                 ],
               ),
             ),
