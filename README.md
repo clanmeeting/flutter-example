@@ -25,18 +25,19 @@ Add the following to your *AndroidManifest.xml* file.
         android:name="android.support.FILE_PROVIDER_PATHS"
         android:resource="@xml/provider_paths" />
 </provider>
-<!-- Flutter downloader -->
-<provider
-    android:name="vn.hunghd.flutterdownloader.DownloadedFileProvider"
-    android:authorities="${applicationId}.flutter_downloader.provider"
-    android:exported="false"
-    android:grantUriPermissions="true">
-    <meta-data
-        android:name="android.support.FILE_PROVIDER_PATHS"
-        android:resource="@xml/provider_paths"/>
-</provider>
-</application>
 ```
+
+
+
+Please add the required configuration for iOS and android as per below links.
+
+Required for downloading shared files within app.
+
+https://pub.dev/packages/flutter_downloader
+
+Required for opening URLs pasted in chat.
+
+https://pub.dev/packages/url_launcher
 
 
 
@@ -88,11 +89,9 @@ Already included in example *clanmeeting.dart*
 ```dart
 InAppWebViewGroupOptions(
   crossPlatform: InAppWebViewOptions(
-    allowUniversalAccessFromFileURLs: true,
     clearCache: true,
     javaScriptCanOpenWindowsAutomatically: true,
     mediaPlaybackRequiresUserGesture: false, // important
-    transparentBackground: true,
   ),
   android: AndroidInAppWebViewOptions(
     supportMultipleWindows: true,
