@@ -86,7 +86,7 @@ class _ClanMeetingScreenState extends State<ClanMeetingScreen> {
     // You can also host this file locally within your Flutter app
     final clanMeetingURL = URLRequest(
         url: Uri.parse(
-            'https://clan-meeting-assets.s3.ap-south-1.amazonaws.com/releases/api/v2.0.0/clanmeeting-flutter.html?$_queryString'));
+            'https://cdn.clanmeeting.com/releases/api/v2.0.0/clanmeeting-flutter.html?$_queryString'));
 
     return SafeArea(
       child: Scaffold(
