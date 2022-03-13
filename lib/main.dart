@@ -34,16 +34,20 @@ class MyHomePage extends StatelessWidget {
   Widget build(BuildContext context) {
     void _joinMeeting() async {
       // TODO: edit these
-      const String domain = 'try.clanmeeting.com';
-      const String consumerId = 'colacoca';
+      const String domain = 'clanmeeting-domain';
+      const String consumerId = 'your-consumer-id';
+      // set the roomName here
       String roomName = Utility.randomString(10);
       const String displayName = 'John Doe';
+      // if this participant is the host
+      const String jwt = '';
 
       final Map args = {
         'domain': domain,
         'consumerId': consumerId,
         'roomName': roomName,
         'displayName': displayName,
+        'jwt': jwt,
       };
 
       try {

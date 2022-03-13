@@ -24,13 +24,23 @@ class _ClanMeetingScreenState extends State<ClanMeetingScreen> {
 
   // webview options
   final InAppWebViewGroupOptions options = InAppWebViewGroupOptions(
-      crossPlatform: InAppWebViewOptions(
-        allowUniversalAccessFromFileURLs: true,
-        clearCache: true,
-        javaScriptCanOpenWindowsAutomatically: true,
-        mediaPlaybackRequiresUserGesture: false,
-        transparentBackground: true,
-      ),
+      crossPlatform: Platform.isIOS
+          ? InAppWebViewOptions(
+              allowUniversalAccessFromFileURLs: true,
+              clearCache: true,
+              javaScriptCanOpenWindowsAutomatically: true,
+              mediaPlaybackRequiresUserGesture: false,
+              transparentBackground: true,
+              userAgent:
+                  'Mozilla/5.0 (iPhone; CPU iPhone OS 15_3_1 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/15.2 Mobile/15E148 Safari/604.1',
+            )
+          : InAppWebViewOptions(
+              allowUniversalAccessFromFileURLs: true,
+              clearCache: true,
+              javaScriptCanOpenWindowsAutomatically: true,
+              mediaPlaybackRequiresUserGesture: false,
+              transparentBackground: true,
+            ),
       android: AndroidInAppWebViewOptions(
         supportMultipleWindows: true,
         useHybridComposition: true,
@@ -73,9 +83,10 @@ class _ClanMeetingScreenState extends State<ClanMeetingScreen> {
         queryParameters:
             _args.map((key, value) => MapEntry(key, value?.toString()))).query;
 
+    // You can also host this file locally within your Flutter app
     final clanMeetingURL = URLRequest(
         url: Uri.parse(
-            'https://clan-meeting-assets.s3.ap-south-1.amazonaws.com/releases/api/v1.0.0/meeting-flutter.html?$_queryString'));
+            'https://clan-meeting-assets.s3.ap-south-1.amazonaws.com/releases/api/v2.0.0/clanmeeting-flutter.html?$_queryString'));
 
     return SafeArea(
       child: Scaffold(
@@ -99,7 +110,7 @@ class _ClanMeetingScreenState extends State<ClanMeetingScreen> {
                         isLoading = false;
                       });
                       // register a JavaScript handler and search for this handler name
-                      // in the meeting-flutter.html file to understand how you can call
+                      // in the clanmeeting-flutter.html file to understand how you can call
                       // a flutter handler in response to a JavaScript meeting event.
                       // This one triggers when a local participant leaves the call.
                       controller.addJavaScriptHandler(
@@ -113,6 +124,7 @@ class _ClanMeetingScreenState extends State<ClanMeetingScreen> {
                             debugPrint(
                                 'Data coming from Javascript side: $data');
                             // ADD YOUR CUSTOM LOGIC HERE
+                            Navigator.pop(context);
                           });
                     },
                     androidOnPermissionRequest:
