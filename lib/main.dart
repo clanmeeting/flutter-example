@@ -34,7 +34,7 @@ class MyHomePage extends StatelessWidget {
   Widget build(BuildContext context) {
     void _joinMeeting() async {
       // TODO: edit these
-      const String domain = 'clanmeeting-domain';
+      const String domain = 'try.clanmeeting.com';
       const String consumerId = 'your-consumer-id';
       // set the roomName here
       String roomName = Utility.randomString(10);

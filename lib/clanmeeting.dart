@@ -16,6 +16,7 @@ class ClanMeetingScreen extends StatefulWidget {
 }
 
 class _ClanMeetingScreenState extends State<ClanMeetingScreen> {
+  InAppLocalhostServer localhostServer = InAppLocalhostServer();
   final GlobalKey _webViewKey = GlobalKey();
   bool isLoading = true;
 
@@ -52,9 +53,14 @@ class _ClanMeetingScreenState extends State<ClanMeetingScreen> {
   @override
   void initState() {
     super.initState();
+    _startLocalServer();
     // The following line will enable the Android and iOS wakelock.
     Wakelock.enable();
     _initializeFlutterDownloader();
+  }
+
+  _startLocalServer() async {
+    await localhostServer.start();
   }
 
   _initializeFlutterDownloader() async {
@@ -70,6 +76,7 @@ class _ClanMeetingScreenState extends State<ClanMeetingScreen> {
 
   @override
   void dispose() {
+    localhostServer.close();
     super.dispose();
   }
 
@@ -83,10 +90,10 @@ class _ClanMeetingScreenState extends State<ClanMeetingScreen> {
         queryParameters:
             _args.map((key, value) => MapEntry(key, value?.toString()))).query;
 
-    // You can also host this file locally within your Flutter app
+    // You can also host this file on a remote server
     final clanMeetingURL = URLRequest(
         url: Uri.parse(
-            'https://cdn.clanmeeting.com/releases/api/v2.0.0/clanmeeting-flutter.html?$_queryString'));
+            'http://localhost:8080/assets/clanmeeting.html?$_queryString'));
 
     return SafeArea(
       child: Scaffold(

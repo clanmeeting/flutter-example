@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html>
+  <head></head>
+  <body>
+
+    <div id="my-meeting" style="position: fixed; top: 0; left: 0; bottom: 0; right: 0; width: 100%; height: 100%; border: none; margin: 0; padding: 0; overflow: hidden; z-index: 99;"></div>
+
+    <script src="https://cdn.clanmeeting.com/releases/api/conferencing/v2.0.0/dist/clanmeeting.min.js"></script>
+
+    <script>
+      // parse the query string
+      const parseParams = (querystring) => {
+        const params = new URLSearchParams(querystring);
+        const obj = {};
+        for (const key of params.keys()) {
+          if (params.getAll(key).length > 1) {
+            obj[key] = params.getAll(key);
+          } else {
+            obj[key] = params.get(key);
+          }
+        }
+        return obj;
+      };
+      const args = parseParams(window.location.search);
+
+      const domain = args['domain'];
+      const consumerId = args['consumerId'];
+      let optionalProperties = {};
+      for (const key in args) {
+        if (args.hasOwnProperty(key) && key !== 'domain' && key!== 'consumerId') {
+          optionalProperties[key] = args[key];
+        }
+      }
+      const meeting = new ClanMeeting(domain, consumerId, optionalProperties);
+
+      window.onload = function() {
+        meeting.start();
+
+        // Events
+        const meetingLeftLsnr = function (data) {
+          // Sends this data over to flutterEndCallHandler defined in clanmeeting.dart
+          window.flutter_inappwebview.callHandler('flutterEndCallHandler', data);
+        };
+        meeting.once('meetingLeft', meetingLeftLsnr);
+      
+      };
+
+      window.onunload = function() {
+        meeting.end();
+      };
+    </script>
+  </body>
+</html>
